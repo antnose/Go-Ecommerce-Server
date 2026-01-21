@@ -15,11 +15,11 @@ func aboutHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 type Product struct {
-	ID          int
-	Title       string
-	Description string
-	Price       float64
-	ImgURL      string
+	ID          int     `json:"id"`
+	Title       string  `json:"title"`
+	Description string  `json:"description"`
+	Price       float64 `json:"price"`
+	ImgURL      string  `json:"imageUrl"`
 }
 
 var productList []Product
