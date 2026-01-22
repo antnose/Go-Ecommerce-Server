@@ -8,6 +8,7 @@ import (
 )
 
 func Serve() {
+	manager := middleware.Manager()
 	mux := http.NewServeMux()
 
 	mux.Handle("GET /products", middleware.Logger(http.HandlerFunc(handlers.GetProducts)))
@@ -21,3 +22,5 @@ func Serve() {
 		fmt.Println("Error starting the server", err)
 	}
 }
+
+// 1.32.11
