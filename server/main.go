@@ -26,6 +26,8 @@ var productList []Product
 
 func getProducts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-type")
 	w.Header().Set("Content-Type", "application/json")
 
 	if r.Method != http.MethodGet {
@@ -37,6 +39,33 @@ func getProducts(w http.ResponseWriter, r *http.Request) {
 	encoder.Encode(productList)
 }
 
+func createProduct(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Please make an POST method", 400)
+		return
+	}
+
+	var newProduct Product
+
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&newProduct)
+
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Please give me valid json", 400)
+		return
+	}
+
+	newProduct.ID = len(productList) + 1
+	productList = append(productList, newProduct)
+
+	encoder := json.NewEncoder(w)
+	encoder.Encode(newProduct)
+}
+
 func main() {
 	mux := http.NewServeMux()
 
@@ -46,7 +75,9 @@ func main() {
 
 	mux.HandleFunc("/products", getProducts)
 
-	fmt.Println("Server running on port :3001")
+	mux.HandleFunc("/create-products", createProduct)
+
+	fmt.Println("Server running on port http://localhost:3001")
 
 	err := http.ListenAndServe(":3001", mux)
 	if err != nil {
