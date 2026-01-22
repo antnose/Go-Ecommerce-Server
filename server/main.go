@@ -1,7 +1,8 @@
 package main
 
 import (
-	"encoding/json"
+	"ecommerce/global_router"
+	"ecommerce/handlers"
 	"fmt"
 	"net/http"
 )
@@ -14,80 +15,24 @@ func aboutHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Hello I am Ibrahim. I Will be software engineer")
 }
 
-type Product struct {
-	ID          int     `json:"id"`
-	Title       string  `json:"title"`
-	Description string  `json:"description"`
-	Price       float64 `json:"price"`
-	ImgURL      string  `json:"imageUrl"`
-}
-
-var productList []Product
-
-func getProducts(w http.ResponseWriter, r *http.Request) {
-	handleCors(w)
-	handlePreflightReq(w, r)
-
-	sendData(w, productList, 200)
-}
-
-// Create Product
-func createProduct(w http.ResponseWriter, r *http.Request) {
-	handleCors(w)
-	handlePreflightReq(w, r)
-
-	var newProduct Product
-
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&newProduct)
-
-	if err != nil {
-		fmt.Println(err)
-		http.Error(w, "Please give me valid json", 400)
-		return
-	}
-
-	newProduct.ID = len(productList) + 1
-	productList = append(productList, newProduct)
-
-	sendData(w, newProduct, 201)
-}
-
-// Cors Handle Reusable Function
-func handleCors(w http.ResponseWriter) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-	w.Header().Set("Content-Type", "application/json")
-}
-
-// Preflight Request Reusable Function
-func handlePreflightReq(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodOptions {
-		w.WriteHeader(200)
-	}
-}
-
-func sendData(w http.ResponseWriter, data interface{}, statusCode int) {
-	w.WriteHeader(statusCode)
-	encoder := json.NewEncoder(w)
-	encoder.Encode(data)
-}
-
 func main() {
 	mux := http.NewServeMux()
 
 	// mux.HandleFunc("/hello", helloHandle) //Old Routing
-	mux.Handle("GET /hello", http.HandlerFunc(helloHandle))
+	// mux.Handle("GET /hello", http.HandlerFunc(helloHandle))
+	mux.Handle("GET /hello", global_router.HandleCorsMiddleware(http.HandlerFunc(helloHandle)))
 
 	// mux.HandleFunc("/about", aboutHandler) //Old Routing
-	mux.Handle("GET /about", http.HandlerFunc(aboutHandler))
+	// mux.Handle("GET /about", http.HandlerFunc(aboutHandler))
+	mux.Handle("GET /about", global_router.HandleCorsMiddleware(http.HandlerFunc(aboutHandler)))
 
 	// mux.HandleFunc("/products", getProducts) //Old Routing
-	mux.Handle("GET /products", http.HandlerFunc(getProducts))
+	// mux.Handle("GET /products", http.HandlerFunc(getProducts))
+	mux.Handle("GET /products", global_router.HandleCorsMiddleware(http.HandlerFunc(handlers.GetProducts)))
 
 	// mux.HandleFunc("/create-products", createProduct) //Old Routing
-	mux.Handle("POST /create-products", http.HandlerFunc(createProduct))
+	// mux.Handle("POST /create-products", http.HandlerFunc(createProduct))
+	mux.Handle("POST /create-products", global_router.HandleCorsMiddleware(http.HandlerFunc(handlers.CreateProduct)))
 
 	fmt.Println("Server running on port http://localhost:3001")
 
@@ -95,35 +40,4 @@ func main() {
 	if err != nil {
 		fmt.Println("Error starting the server", err)
 	}
-}
-
-func init() {
-	pd1 := Product{
-		ID:          1,
-		Title:       "Orange",
-		Description: "Orange is orange. And that's why it's orange",
-		Price:       230,
-		ImgURL:      "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Ambersweet_oranges.jpg/250px-Ambersweet_oranges.jpg",
-	}
-
-	pd2 := Product{
-		ID:          2,
-		Title:       "Apple",
-		Description: "Apple is apple",
-		Price:       340,
-		ImgURL:      "https://hips.hearstapps.com/hmg-prod/images/apples-at-farmers-market-royalty-free-image-1627321463.jpg?crop=1xw:0.94466xh;center,top&resize=1200:*",
-	}
-
-	pd3 := Product{
-		ID:          3,
-		Title:       "Banana",
-		Description: "Banana is banana",
-		Price:       40,
-		ImgURL:      "https://www.allrecipes.com/thmb/jYmw-0Vijg1E_OuG2yGjEAcdQg4=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/ar-new-banana-adobe-ar-4x3-d8f0871e12214350be7ae5575eea4eed.jpg",
-	}
-
-	productList = append(productList, pd1)
-	productList = append(productList, pd2)
-	productList = append(productList, pd3)
-
 }
