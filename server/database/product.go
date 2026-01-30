@@ -8,7 +8,48 @@ type Product struct {
 	ImgURL      string  `json:"imageUrl"`
 }
 
-var ProductList []Product
+var productList []Product
+
+func Store(p Product) Product {
+	p.ID = len(productList) + 1
+	productList = append(productList, p)
+	return p
+}
+
+func List() []Product {
+	return productList
+}
+
+func Get(ProductId int) *Product {
+	for _, product := range productList {
+
+		if product.ID == ProductId {
+			return &product
+		}
+	}
+
+	return nil
+}
+
+func Update(product Product) {
+	for idx, p := range productList {
+		if p.ID == product.ID {
+			productList[idx] = product
+		}
+	}
+}
+
+func Delete(productId int) {
+	var tempList []Product = make([]Product, 0)
+
+	for _, p := range productList {
+		if productId != p.ID {
+			tempList = append(tempList, p)
+		}
+	}
+
+	productList = tempList
+}
 
 func init() {
 	pd1 := Product{
@@ -35,8 +76,8 @@ func init() {
 		ImgURL:      "https://www.allrecipes.com/thmb/jYmw-0Vijg1E_OuG2yGjEAcdQg4=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/ar-new-banana-adobe-ar-4x3-d8f0871e12214350be7ae5575eea4eed.jpg",
 	}
 
-	ProductList = append(ProductList, pd1)
-	ProductList = append(ProductList, pd2)
-	ProductList = append(ProductList, pd3)
+	productList = append(productList, pd1)
+	productList = append(productList, pd2)
+	productList = append(productList, pd3)
 
 }
