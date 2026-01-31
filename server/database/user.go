@@ -6,7 +6,7 @@ type User struct {
 	LastName    string `json:"last_name"`
 	Email       string `json:"email"`
 	Password    string `json:"password"`
-	IsShopOwner string `json:"is_shop_owner"`
+	IsShopOwner bool   `json:"is_shop_owner"`
 }
 
 var users []User
@@ -20,4 +20,14 @@ func (u User) Store() User {
 
 	users = append(users, u)
 	return u
+}
+
+func Find(email, pass string) *User {
+	for _, u := range users {
+		if u.Email == email && u.Password == pass {
+			return &u
+		}
+	}
+
+	return nil
 }
